@@ -1,0 +1,24 @@
+# Python/Django用のgitignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+
+# 環境ファイル
+.env
+
+# 仮想環境
+venv/
+.env/
+.env.bak/
+
+# エディタやOS関連
+.idea/
+.vscode/
+.DS_Store
+
+# 静的ファイルや一時ファイル
+staticfiles/
+media/

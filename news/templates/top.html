@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container mt-5 text-center mb-4">
+    <h2 class="page-title">トップページ</h2>
+
+    {% if request.user.is_authenticated %}
+        <div class="welcome-container text-center my-4">
+            <p class="welcome-text">
+                こんにちは、<span class="username">{{ request.user.username }}</span>さん
+            </p>
+        </div>
+
+    {% endif %}
+
+    <form method="get" action="{% url 'article_search' %}">
+        <input type="text" name="q" value="{{ query }}" placeholder="記事を検索" class="form-control" />
+        <button type="submit" class="btn btn-primary mt-2">検索</button>
+    </form>
+</div>
+
+<div class="article-list">
+    <h4 class="article-heading">他の方はこんな記事を見ています</h4>
+    <ul class="list-group mt-3">
+        {% for article in articles %}
+        <li class="list-group-item">
+            <a href="{% url 'article_detail' article.id %}"
+               class="track-link"
+               data-title="{{ article.title }}">
+               {{ article.title }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination mt-4 d-flex justify-content-center">
+        <ul class="pagination pagination-sm">
+            {% if articles.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page=1">&laquo; 最初</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.previous_page_number}}">前へ</a>
+                </li>
+            {% endif %}
+
+            {% for num in articles.paginator.page_range %}
+                {% if articles.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > articles.number|add:"-2" and num < articles.number|add:"2" %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if articles.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.next_page_number }}">次へ</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.paginator.num_pages }}">最後 &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-text {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .username {
+        color: #c00;
+        font-weight: 600;
+    }
+
+    .btn-mypage {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-mypage:hover {
+        background-color: #0056b3;
+    }
+    
+    .article-heading {
+        text-align: center;
+    }
+
+    .article-list {
+        text-align: left;
+    }
+</style>
+{% endblock %}

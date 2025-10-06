@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">マイページ</h2>
+    
+    <div class="card-body p-4 mb-4 shadow-sm mx-auto border rounded" style="width: 500px;">
+        <div class="card-body p-4">
+            <h5 class="text-center">ユーザー情報</h5>
+            <p class="card-text mb-2"><strong>ユーザー名</strong>:{{ user.username }}</p>
+            <p class="card-text"><strong>メールアドレス</strong>:{{ user.email }}</p>
+        </div>
+    </div>
+
+    <h4 class="text-center">最近の閲覧記事</h4>
+    <ul class="list-group">
+        {% for item in history %}
+            <li class="list-group-item">
+                <a href="{{ item.article.article_url }}" target="_blank">
+                    {{ item.article.title }}
+                </a>
+                <div class="text-muted small">{{ item.viewed_at|date:"Y-m-d H:i" }}</div>
+            </li>
+        {% empty %}
+            <li class="list-group-item">閲覧履歴がありません</li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination mt-3 d-flex justify-content-center">
+        <ul class="pagination">
+            {% if history.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?history_page=1">&laquo;
+                        最初
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?history_page={{ history.previous_page_number }}">
+                        前へ
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in history.paginator.page_range %}
+                {% if history.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > history.number|add:"-3" and num < history.number|add:"3" %}
+                    <li class="page-item">
+                        <a class="page-link" href="?history_page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if history.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?history_page={{ history.next_page_number }}">次へ</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?history_page={{ history.paginator.num_pages }}">最後 &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <hr class="my-4">
+
+    <h4 class="text-center mt-3">お気に入り記事</h4>
+    <ul class="list-group">
+        {% for fav in favorites %}
+            <li class="list-group-item">
+                <a href="{{ fav.url }}" target="_blank">{{ fav.title }}</a>
+            </li>
+        {% empty %}
+            <li class="list-group-item">お気に入りはありません</li>
+        {% endfor %}
+    </ul>
+
+    
+
+                    
+
+    <div class="pagination mt-3 d-flex justify-content-center">
+        <ul class="pagination">
+            {% if favorites.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?fav_page={{ favorites.previous_page_number}}">前へ</a>
+                </li>
+            {% endif %}
+            {% for num in favorites.paginator.page_range %}
+                {% if favorites.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > favorites.number|add:"-3" and num < favorites.number|add:"3" %}
+                    <li class="page-item"><a class="page-link" href="?fav_page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if favorites.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?fav_page={{ favorites.next_page_number }}">次へ</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+
+    <div class="text-center">
+        <a href="{% url 'top' %}" class="btn btn-secondary mt-3">トップに戻る</a>
+    </div>
+
+</div>
+{% endblock %}
+    

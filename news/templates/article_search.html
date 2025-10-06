@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .search-form input,
+    .search-form button {
+        height: 40px;
+    }
+
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center mb-5">
+    <h2 class="page-title">記事検索</h2>
+    <form method="get" class="search-form d-flex align-items-center">
+        <input type="text" name="q" placeholder="検索キーワード" value="{{ query }}">
+        <button type="submit" class="btn btn-primary ms-2">検索</button>
+    </form>
+
+    
+    <div class="row justify-content-center">
+        {% for article in articles %}
+            <div class="col-md-10 col-lg-8 mb-2 mt-4">
+                <div class="card h-100 shadow-sm">
+                    <h5 class="card-title">
+                        <a href="{% url 'view_article' %}?url={{ article.link|urlencode }}&title={{ article.title|urlencode}}" 
+                            target="_blank"
+                            class="track_link text-decoration-none fw-bold">
+                                {{ article.title }}
+                        </a>
+                    </h5>
+                    <p class="card-text"></p>
+                </div>
+            </div>
+        {% empty %}
+            <li class="list-group-item fs-4 fw-bold text-center text-danger">記事が見つかりませんでした</li>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mt-4 d-flex justify-content-center">
+        <ul class="pagination pagination-sm">
+            {% if articles.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page=1">&laquo; 最初</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.previous_page_number}}">前へ</a>
+                </li>
+            {% endif %}
+
+            {% for num in articles.paginator.page_range %}
+                {% if articles.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > articles.number|add:"-2" and num < articles.number|add:"2" %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if articles.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.next_page_number }}">次へ</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ articles.paginator.num_pages }}">最後 &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const links = document.querySelectorAll(".track-link");
+    links.forEach(link => {
+        link.addEventListener("click", function(e) {
+            const articleUrl = this.dataset.link;
+            const articleTitle = this.textContent;
+
+            // Ajaxで履歴を送信
+            fetch("{% url 'track_article' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ link: articleUrl, title: articleTitle })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("閲覧履歴保存:", data);
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+});
+</script>
+{% endblock %}
+

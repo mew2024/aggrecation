@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>ニュース検索ポータル</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #search-form { margin-bottom: 20px; text-align: center; }
+        .article { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .article h3 { margin: 0; font-size: 1.1em; }
+        .article p { margin: 5px 0; }
+        .article a { color: blue; text-decoration: none; }
+        .article a:hover { text-decoration: underline; }
+        h1 { text-align: center; font-size: 2em; }
+        .subtitle { text-align: center; color: red; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>ニュース検索ポータル</h1>
+    <p class="subtitle">早速、気になる話題を調べてみよう！</p> 
+
+    <div id="search-form">
+        <form id="form" onsubmit="searchNews(event)">
+            <input type="text" id="query" placeholder="キーワードを入力" style="width:300px;">
+            <button type="submit">検索</button>
+        </form>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function searchNews(event) {
+            event.preventDefault(); // ページリロード防止
+
+            const query = document.getElementById("query").value.trim();
+            if (!query) return;
+
+            try {
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}&n=5`);
+                if (!response.ok) {
+                    throw new Error('検索APIが応答しません');
+                }
+                const articles = await response.json();
+
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = "";
+
+                if (!articles || articles.length === 0) {
+                    resultsDiv.innerHTML = "<p>該当する記事がありません。</p>";
+                    return;
+                }
+
+                articles.forEach(a => {
+                    const div = document.createElement("div");
+                    div.className = "article";
+                    div.innerHTML = `
+                        <h3>${a.title}</h3>
+                        <p>${a.snippet}</p>
+                        <p><small>${a.source} | ${a.published_at}</small></p>
+                        <a href="${a.url}" target="_blank">記事を見る</a>
+                    `;
+                    resultsDiv.appendChild(div);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('検索中にエラーが発生しました');
+            }
+        }
+    </script>
+</body>
+</html>
+

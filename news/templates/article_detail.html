@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2>{{ article.title }}</h2>
+
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">    
+
+        <a href="#" class="btn btn-sm btn-outline-primary favorite-btn" data-id="{{ article.id }}">
+            ❤
+        </a>
+
+    <p class="mt-3">
+        <a href="{{ article.article_url }}" target="_blank" class="btn btn-primary">
+            元の記事を読む
+        </a>
+    </p>
+    <p><small>作成日: {{ article.created_at|date:"Y-m-d H:i" }}</small></p>
+</div>
+
+<div id="message-box"
+     style="display:none; position:fixed; top:60px; left:50%; transform:translateX(-50%);
+           background-color:#333; color:#fff; padding:10px 20px; border-radius:8px;
+           font-size:14px; opacity:0.9; z-index:9999;">
+</div>
+
+
+<script>
+document.querySelectorAll(".favorite-btn").forEach(btn => {
+    btn.addEventListener("click", async function(e){
+        e.preventDefault();
+        const articleId = this.dataset.id;
+        const csrftoken =document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const response = await fetch("{% url 'toggle_favorite' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ article_id: articleId})
+        });
+
+        const data = await response.json();
+        if(data.status === "added") {
+            this.classList.add("active");
+            this.textContent = "💔";
+            showMessage("お気に入り登録しました");
+        } else if(data.status === "removed") {
+            this.classList.remove("active");
+            this.textContent = "❤";
+            showMessage("登録解除しました");
+        }
+    });
+});
+
+function showMessage(text) {
+    const box = document.getElementById("message-box");
+    box.textContent = text;
+    box.style.display = "block";
+    box.style.opacity = "1";
+    setTimeout(() => {
+        box.style.transition = "opacity 0.5s";
+        box.style.opacity = "0";
+        setTimeout(() => {
+            box.style.display = "none";
+        }, 500);
+    }, 2000);
+}
+</script>
+{% endblock %}
+

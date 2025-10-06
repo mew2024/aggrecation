@@ -1,0 +1,16 @@
+[
+    {
+        "title": "Pythonでニュース検索アプリを作ってみた",
+        "snippet": "FastAPIを使って簡単な検索システムを実装する方法を解説します。",
+        "url": "https://example.com/article1",
+        "source": "Tech Blog",
+        "published_at": "2025-09-14"
+    },
+    {
+        "title": "AIが変えるニュース業界",
+        "snippet": "自然言語処理技術がニュース記事の自動分類や検索に活用されています。",
+        "url": "https://example.com/article2",
+        "source": "AI Times",
+        "published_at": "2025-09-13"
+    }
+]

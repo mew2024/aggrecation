@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <script>
+                    alert("{{ message }}");
+                </script>
+            {% endfor %}
+        {% endif %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card p-4 shadow-sm" style="width: 500px;">
+        <h2 class="mb-4 text-center">ログイン</h2>
+        <form id="loginForm" method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username_or_email" class="form-label">ユーザー名またはメールアドレス</label>
+                <input type="text" name="username_or_email" class="form-control" id="id_username_or_email" required>
+            </div>
+
+            <div class="mb-3 input-group">
+                <input type="password" name="password" class="form-control" id="id_password"placeholder="パスワード" required>
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">👁</button>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">ログイン</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="loginErrorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">ログインエラー</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorMessage"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+const passwordInput = document.getElementById('id_password');
+const toggleBtn = document.getElementById('togglePassword');
+toggleBtn.addEventListener('click', () => {
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent ='👁';
+    }
+});
+
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    const response = await fetch("{% url 'ajax_user_login' %}", {  // URL 修正
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrftoken  // CSRFヘッダ追加
+        },
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        window.location.href = data.redirect_url;
+    } else {
+        document.getElementById("errorMessage").textContent = data.message;
+        var modal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+        modal.show();
+    }
+});
+</script>
+
+{% endblock %}

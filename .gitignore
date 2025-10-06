@@ -1,12 +1,13 @@
-# Python/Django用のgitignore
+# Pythonキャッシュ
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.sqlite3
+
+# データベース
 db.sqlite3
 
-# 環境ファイル
+# 環境変数ファイル
 .env
 
 # 仮想環境
@@ -14,11 +15,23 @@ venv/
 .env/
 .env.bak/
 
-# エディタやOS関連
-.idea/
-.vscode/
-.DS_Store
-
-# 静的ファイルや一時ファイル
+# Django静的ファイル・メディア
 staticfiles/
 media/
+
+# Djangoログ・一時ファイル
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.swo
+
+# IDE / エディタ関連
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS関連
+.DS_Store
+Thumbs.db
